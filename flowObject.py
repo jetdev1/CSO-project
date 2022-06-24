@@ -15,7 +15,7 @@
 # in memory and can be yielded on demand.
 
 
-from flowOption import flowOption
+from FlowOption import flowOption
 
 
 class flowObject:
