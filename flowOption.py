@@ -6,5 +6,5 @@ from dataclasses import dataclass
 
 @dataclass
 class FlowOption:
-    id: int
+    optionID: int
     label: str
