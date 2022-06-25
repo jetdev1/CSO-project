@@ -1,4 +1,10 @@
-# Handles ID assignment, ID creation, loading objects and saving objects
+# ISSUES
+
+# FlowMaster.saveSession() may save unwanted variables and reinstate
+# its value in the next session and cause glitches. Resolve by limtting
+# the variables that are saved.
+
+
 from dataclasses import dataclass, field
 import pickle
 
@@ -14,13 +20,14 @@ class FlowObject:
     objID: int
     parentID: int
     parentOptionID: int
+    label: str
     options: list[FlowOption]
 
 
-@dataclass(frozen=True)
+# @dataclass(frozen=True)
 class FlowMaster:
-    flowObjects: list[dict]
-    flowOptions: list[dict]
+    flowObjects: dict
+    flowOptions: dict
 
     def __init__(self) -> None:
         try:
@@ -31,21 +38,27 @@ class FlowMaster:
                 setattr(self, key, value)
 
         except FileNotFoundError:
-            flowObjects = []
-            flowOptions = []
+            flowObjects = {}
+            flowOptions = {}
 
     def saveSession(self) -> str:
-        # Retrive names and values of all properties
-        saveDataKeys = [e for e in dir(self) if e[0:2] != '__']
-        saveDataValues = [getattr(self, e) for e in saveDataKeys]
-        saveData = {}
+        try:
+            # Retrive names and values of all properties
+            saveDataKeys = [e for e in dir(self) if e[0:2] != '__']
+            saveDataValues = [getattr(self, e) for e in saveDataKeys]
+            saveData = {}
 
-        for key, value in zip(saveDataKeys, saveDataValues):
-            saveData[key] = value
+            for key, value in zip(saveDataKeys, saveDataValues):
+                saveData[key] = value
 
-        with open('saveData.pickle', 'ab') as file:
-            pickle.dump(saveData, file)
+            with open('saveData.pickle', 'ab') as file:
+                pickle.dump(saveData, file)
 
+            return 'Data successfully saved at ~/saveData.pickle'
+
+        except Exception as e:
+            return f'An error occurred.\n{e}'
+    
     def createFlowObj(self) -> None:
         pass
 
