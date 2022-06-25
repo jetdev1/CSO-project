@@ -10,3 +10,9 @@ The FlowMaster is used for the handling of FlowOption and FlowObject objects. Th
 ## Known Issues/Potential Issues
 ### FlowMaster.saveData: saves all variables of instance
 FlowMaster.saveData is currently configured to save all the properties of a given instance of FlowMaster, which can result in unintended variables being restored in the next session and causing unforseen glitches. 
+
+### Trash Files: Old files no longer in use
+- flowMaster.py
+- flowObject.py
+- flowOption.py
+- test.py
