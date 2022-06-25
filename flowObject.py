@@ -15,25 +15,32 @@
 # in memory and can be yielded on demand.
 
 
-from FlowOption import flowOption
+from FlowOption import FlowOption
+from dataclasses import dataclass, field
 
 
-class flowObject:
+@dataclass
+class FlowObject:
+    objID: int
+    parentID: int
+    parentOptionID: int
+    options: FlowOption
 
-    # make upper an optional argument, so that the master (first) flowObject can be created
-    def __init__(self, objID):
-        self.objProperties = objID.split(sep='9')
-        self.parentID = self.objProperties[0]
-        self.objID = self.objProperties[1]
-        self.optionID = self.objProperties[2]
-        self.optionArr = []
+
+# class FlowObject:
+#     def __init__(self, objID):
+#         self.objProperties = objID.split(sep='9')
+#         self.parentID = self.objProperties[0]
+#         self.objID = self.objProperties[1]
+#         self.optionID = self.objProperties[2]
+#         self.optionArr = []
         
-    def createOption(self, optionID, label):
-        self.optionObj = flowOption(optionID, label)
-        self.optionArr.append(self.optionArr)
+#     def createOption(self, optionID, label):
+#         self.optionObj = flowOption(optionID, label)
+#         self.optionArr.append(self.optionArr)
 
-    def changeOption(self, optionID, newLabel):
-        pass
+#     def changeOption(self, optionID, newLabel):
+#         pass
 
-    def removeOption(self, optionID):
-        pass
+#     def removeOption(self, optionID):
+#         pass
