@@ -1,7 +1,10 @@
 from dataclasses import dataclass, field
+from pprint import pprint
 import dataclasses
 import pickle
 import uuid
+import inspect
+import logging 
 
 
 @dataclass(frozen=True)
@@ -13,14 +16,21 @@ class FlowOption:
 
 @dataclass(frozen=True, order=True)
 class FlowNode:
-    objID: str = field(init=False)
     parentID: str
     parentOptionID: str
     label: str
     options: dict
+    nodeID: str = str(uuid.uuid4())
 
 
-class FlowMaster:
+@dataclass(frozen=True)
+class TopNode:
+    label: str
+    options: dict 
+    nodeID: str = str(uuid.uuid4())
+
+
+class Flow:
     __flowNodes: dict
 
     def __init__(self) -> None:
@@ -32,7 +42,16 @@ class FlowMaster:
                 setattr(self, key, value)
 
         except FileNotFoundError:
+            # maybe log this to a separate file?
+            print('No save file found.')
+            # Create first node
+            # self.topID = uuid.uuid4()
+            # self.topNode = TopNode(str(input('Enter the label of the top node: ')), {})
             self.__flowNodes = {}
+
+    def __str__(self) -> str:
+        # construct and print entire flowchart
+        pass
 
     def saveSession(self) -> str:
         try:
@@ -50,25 +69,15 @@ class FlowMaster:
             return 'Data successfully saved at ~/saveData.pickle'
 
         except Exception as e:
-            return f'An error occurred.\n{e}'
+            return f'An error occurred.\n\n{e}'
 
-    def generateID(self) -> str:
-        return str(uuid.uuid4())
     
-    def addNode(self, node, nodeID) -> None:
-        # Shorten the process of creating and adding nodes. Instead of having
-        # to generate a UUID, create an instance of FlowNode then passing it
-        # to addNode to be tracked and saved, make these processes internal to Flow.py
+    def addNode(self, node) -> None:
+        self.__flowNodes[node.nodeID] = node
+        returnStatus = self.saveSession()
+        print(returnStatus)
 
-        # However, making FlowMaster.addNode take the properties of the new Node
-        # then pass it to the Node class seems verbose and unnecessary. One option
-        # is to make the UUID creation internal to FlowNode, so the creation of the 
-        # node becomes a 2-step process.
-
-        self.__flowNodes[nodeID] = node
-        print(self.saveSession())
-
-    def delNode(self, nodeID) -> None:
+    def deleteNode(self, nodeID) -> None:
         try:
             del self.__flowNodes[nodeID]
 
@@ -87,9 +96,10 @@ class FlowMaster:
                 self.keysFound = True
 
         if self.keysFound:
-            dataclasses.replace(self.__flowNodes[nodeID], kwargs)
-
-    def constructFlow(self) -> None:
-        pass
+            dataclasses.replace(self.__flowNodes[nodeID], **kwargs)
 
 
+if __name__ == '__main__':
+    a = FlowNode(str(uuid.uuid4()), str(uuid.uuid4()), 'Hello World!', {})
+    pprint(inspect.getmembers(FlowNode, inspect.isfunction))
+    pprint(a)

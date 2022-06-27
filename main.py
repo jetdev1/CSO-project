@@ -1,5 +1,5 @@
-from Flow import FlowMaster, FlowObject, FlowOption
+from Flow import Flow, FlowObject, FlowOption
 
 
 def main():
-    master = FlowMaster()
+    master = Flow()
