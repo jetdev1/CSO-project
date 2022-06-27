@@ -1,33 +1,27 @@
-# ISSUES
-
-# FlowMaster.saveSession() may save unwanted variables and reinstate
-# its value in the next session and cause glitches. Resolve by limtting
-# the variables that are saved.
-
-
 from dataclasses import dataclass, field
+import dataclasses
 import pickle
+import uuid
 
 
 @dataclass(frozen=True)
 class FlowOption:
-    optionID: int
+    optionID: str
     label: str
+    childNodeID: str
 
 
 @dataclass(frozen=True, order=True)
-class FlowObject:
-    objID: int
-    parentID: int
-    parentOptionID: int
+class FlowNode:
+    objID: str = field(init=False)
+    parentID: str
+    parentOptionID: str
     label: str
-    options: list[FlowOption]
+    options: dict
 
 
-# @dataclass(frozen=True)
 class FlowMaster:
-    flowObjects: dict
-    flowOptions: dict
+    __flowNodes: dict
 
     def __init__(self) -> None:
         try:
@@ -38,8 +32,7 @@ class FlowMaster:
                 setattr(self, key, value)
 
         except FileNotFoundError:
-            flowObjects = {}
-            flowOptions = {}
+            self.__flowNodes = {}
 
     def saveSession(self) -> str:
         try:
@@ -58,19 +51,45 @@ class FlowMaster:
 
         except Exception as e:
             return f'An error occurred.\n{e}'
+
+    def generateID(self) -> str:
+        return str(uuid.uuid4())
     
-    def createFlowObj(self) -> None:
+    def addNode(self, node, nodeID) -> None:
+        # Shorten the process of creating and adding nodes. Instead of having
+        # to generate a UUID, create an instance of FlowNode then passing it
+        # to addNode to be tracked and saved, make these processes internal to Flow.py
+
+        # However, making FlowMaster.addNode take the properties of the new Node
+        # then pass it to the Node class seems verbose and unnecessary. One option
+        # is to make the UUID creation internal to FlowNode, so the creation of the 
+        # node becomes a 2-step process.
+
+        self.__flowNodes[nodeID] = node
+        print(self.saveSession())
+
+    def delNode(self, nodeID) -> None:
+        try:
+            del self.__flowNodes[nodeID]
+
+        except KeyError:
+            print(f'Delete unsuccessful, node {nodeID} not found.')
+
+    def editNode(self, nodeID, **kwargs):
+        self.keysFound = False
+
+        # Check the unpacking of kwargs
+        for key, value in kwargs:
+            if key not in dir(self.__flowNodes[nodeID]):
+                self.keysFound = False
+                print(f'Property {key} does not exist in flowNode object.')
+            else:
+                self.keysFound = True
+
+        if self.keysFound:
+            dataclasses.replace(self.__flowNodes[nodeID], kwargs)
+
+    def constructFlow(self) -> None:
         pass
 
-    def createFlow(self) -> None:
-        pass
-
-    def generateObjID(self):
-        # objID format: [parent_ID].[objID].[optionID it is linked to in
-        # parent object]
-        # use parent ID 00 if no parent object is present
-        pass
-
-    def generateOptionID(self):
-        pass
 
