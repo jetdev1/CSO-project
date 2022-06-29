@@ -5,6 +5,38 @@ import pickle
 import uuid
 import inspect
 import logging 
+import os
+
+
+# Things to do 
+# 1. implement logging
+#   a. Either find the working directory of the script and create the log in the same location or
+#   b. Let user specify log file location in the logger config file
+# 2. Write __str__ func 
+# 3. Write docstrings
+
+# CONSTANTS
+LOGPATH = os.path.realpath(__file__) + r'/testLog.log'
+
+
+# Logging setup
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+fHandler = logging.FileHandler(LOGPATH, 'a', 'utf-8')
+fHandler.setLevel(logging.DEBUG)
+
+sHandler = logging.StreamHandler()
+sHandler.setLevel(logging.WARNING)
+
+fileFormatter = logging.Formatter('%(asctime)-23s | %(filename)-8s \
+                                  | %(lineno)-3s | %(levelname)-8s | %(message)s')
+streamFormatter = logging.Formatter('%(module)-7s | %(levelname)-8s | %(message)s')
+fHandler.setFormatter(fileFormatter)
+sHandler.setFormatter(streamFormatter)
+
+logger.addHandler(fHandler)
+logger.addHandler(sHandler)
 
 
 @dataclass(frozen=True)
@@ -31,8 +63,6 @@ class TopNode:
 
 
 class Flow:
-    __flowNodes: dict
-
     def __init__(self) -> None:
         try:
             with open('saveData.pickle', 'rb') as outfile:
@@ -43,7 +73,7 @@ class Flow:
 
         except FileNotFoundError:
             # maybe log this to a separate file?
-            print('No save file found.')
+            logger.debug('No save file found.')
             # Create first node
             # self.topID = uuid.uuid4()
             # self.topNode = TopNode(str(input('Enter the label of the top node: ')), {})
@@ -66,23 +96,22 @@ class Flow:
             with open('saveData.pickle', 'ab') as file:
                 pickle.dump(saveData, file)
 
-            return 'Data successfully saved at ~/saveData.pickle'
+            logger.info('Data successfully saved at ~/saveData.pickle')
 
         except Exception as e:
-            return f'An error occurred.\n\n{e}'
+            logger.exception('Error occurred in saveSession()')
 
     
     def addNode(self, node) -> None:
         self.__flowNodes[node.nodeID] = node
-        returnStatus = self.saveSession()
-        print(returnStatus)
+        self.saveSession()
 
     def deleteNode(self, nodeID) -> None:
         try:
             del self.__flowNodes[nodeID]
 
         except KeyError:
-            print(f'Delete unsuccessful, node {nodeID} not found.')
+            logger.exception(f'Delete unsuccessful, node {nodeID} not found.')
 
     def editNode(self, nodeID, **kwargs):
         self.keysFound = False
@@ -92,11 +121,13 @@ class Flow:
             if key not in dir(self.__flowNodes[nodeID]):
                 self.keysFound = False
                 print(f'Property {key} does not exist in flowNode object.')
+                logger.error(f'Property {key} does not exist in flowNode object.')
             else:
                 self.keysFound = True
 
         if self.keysFound:
             dataclasses.replace(self.__flowNodes[nodeID], **kwargs)
+            logger.debug(f'Property has been added.\n{self.__flowNodes[nodeID]}')
 
 
 if __name__ == '__main__':

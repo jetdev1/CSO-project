@@ -1,4 +1,4 @@
-from Flow import Flow, FlowObject, FlowOption
+from Flow import Flow, FlowNode, FlowOption
 
 
 def main():
