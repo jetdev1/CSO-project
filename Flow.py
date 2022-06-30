@@ -16,7 +16,7 @@ import os
 # 3. Write docstrings
 
 # CONSTANTS
-LOGPATH = os.path.realpath(__file__) + r'/testLog.log'
+LOGPATH = os.path.realpath(__file__) + r'/programLogs.log'
 
 
 # Logging setup
@@ -68,8 +68,13 @@ class Flow:
             with open('saveData.pickle', 'rb') as outfile:
                 saveData = pickle.load(outfile)
 
-            for key, value in saveData.items():
-                setattr(self, key, value)
+            if saveData != {}:
+                for key, value in saveData.items():
+                    setattr(self, key, value)
+                logger.info('Loaded save data successfully.')
+            else:
+                self.__flowNodes = {}
+                logger.debug('Save file is empty.')
 
         except FileNotFoundError:
             # maybe log this to a separate file?
@@ -113,22 +118,30 @@ class Flow:
         except KeyError:
             logger.exception(f'Delete unsuccessful, node {nodeID} not found.')
 
-    def editNode(self, nodeID, **kwargs):
+    def setNode(self, nodeID, **kwargs):
         self.keysFound = False
 
         # Check the unpacking of kwargs
         for key, value in kwargs:
             if key not in dir(self.__flowNodes[nodeID]):
                 self.keysFound = False
-                print(f'Property {key} does not exist in flowNode object.')
                 logger.error(f'Property {key} does not exist in flowNode object.')
             else:
                 self.keysFound = True
+                break
 
         if self.keysFound:
             dataclasses.replace(self.__flowNodes[nodeID], **kwargs)
             logger.debug(f'Property has been added.\n{self.__flowNodes[nodeID]}')
 
+    def addOption(self):
+        pass
+
+    def setOption(self):
+        pass
+
+    def delOption(self):
+        pass
 
 if __name__ == '__main__':
     a = FlowNode(str(uuid.uuid4()), str(uuid.uuid4()), 'Hello World!', {})
