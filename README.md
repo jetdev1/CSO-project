@@ -1,4 +1,4 @@
-# CSO-project
+# Flow: A flowchart for Python
 Project to recreate the flowchart of the KKFSC organisation
 
 # Developer notes
@@ -16,3 +16,11 @@ FlowMaster.saveData is currently configured to save all the properties of a give
 - flowObject.py
 - flowOption.py
 - test.py
+
+## Feature Queue:
+1. Visual interface to edit the flowchart
+2. Website release of the program
+3. Mobile friendly website
+4. Password-protected accounts
+5. Encrypted data
+6. Support for uploading images to nodes.
