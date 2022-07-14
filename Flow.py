@@ -122,7 +122,7 @@ class Flow:
         self.keysFound = False
 
         # Check the unpacking of kwargs
-        for key, value in kwargs:
+        for key in kwargs:
             if key not in dir(self.__flowNodes[nodeID]):
                 self.keysFound = False
                 logger.error(f'Property {key} does not exist in flowNode object.')
