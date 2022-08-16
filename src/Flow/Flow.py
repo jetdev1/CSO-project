@@ -1,3 +1,7 @@
+# encoding: -*- utf-8 -*-
+"""Flow is a library for creating and manipulating flows
+Flows are tree data structures that can be used to represent a series of steps in a process.
+"""
 from dataclasses import dataclass, field
 from pprint import pprint
 import dataclasses
@@ -6,8 +10,6 @@ import uuid
 import inspect
 import logging 
 import os
-
-
 
 # CONSTANTS
 LOGPATH = os.path.realpath(__file__) + r'/programLogs.log'
