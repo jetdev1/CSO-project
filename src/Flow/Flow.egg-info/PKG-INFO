@@ -1,0 +1,15 @@
+Metadata-Version: 2.1
+Name: Flow
+Version: 0.0.0
+Summary: Assistant for KKFSC staff
+Author: Lim Jit, Samuel Chia
+Platform: unix
+Platform: windows
+Platform: osx
+Platform: win32
+Platform: linux
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Requires-Python: >=3.9

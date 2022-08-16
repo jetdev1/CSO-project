@@ -8,12 +8,6 @@ import logging
 import os
 
 
-# Things to do 
-# 1. implement logging
-#   a. Either find the working directory of the script and create the log in the same location or
-#   b. Let user specify log file location in the logger config file
-# 2. Write __str__ func 
-# 3. Write docstrings
 
 # CONSTANTS
 LOGPATH = os.path.realpath(__file__) + r'/programLogs.log'

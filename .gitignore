@@ -18,3 +18,7 @@ Thumbs.db
 # Compiled Source #
 ###################
 .pyc
+
+# Virtual environment #
+######################
+venv/
