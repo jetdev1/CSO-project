@@ -19,9 +19,9 @@ class Node:
     """
     name: str
     label: str
-    parent: tuple(str, str)
+    parent: tuple[str, str]
     options: list = field(default_factory=list)
-    others: NamedTuple = None
+    others: NamedTuple = field(default_factory=NamedTuple)
 
 
 @dataclass(frozen=True)
@@ -107,12 +107,12 @@ class Tree:
                 "options": node.options,
                 "others": node.others
             }
-            if change[0] in c:
-                c[change[0]] = change[1]
+            if value[0] in c:
+                c[value[0]] = value[1]
                 self.tree[node.name] = Node(**c)
                 self.__logger.info("Changed node {}".format(node.name))
             else:
-                raise KeyError(f"Invalid key: key {change[0]} not found.")
+                raise KeyError(f"Invalid key: key {value[0]} not found.")
         else:
             self.__logger.debug("Node not found, creating new node.")
             self.tree[node.name] = node
