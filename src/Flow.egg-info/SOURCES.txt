@@ -3,6 +3,7 @@ pyproject.toml
 setup.cfg
 setup.py
 src/Flow/Flow.py
+src/Flow/Tree.py
 src/Flow/__init__.py
 src/Flow.egg-info/PKG-INFO
 src/Flow.egg-info/SOURCES.txt
