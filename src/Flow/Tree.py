@@ -1,31 +1,28 @@
-import pickle
-import os
-from dataclasses import dataclass, field
-from typing import NamedTuple
 import logging
+import os
+import pickle
+from dataclasses import dataclass, field
 
 
-@dataclass(frozen=True)
-class Node:
+@dataclass
+class _Node:
     """
     Represents a node in the decision tree.
 
     Attributes:
         name (str): The name of the node. Used to refer back to the node.
-        label(str): The question that the node asks.
+        label (str): The question that the node asks.
         parent (tuple): (name of parent node, option to reach this node)
         options (list): List of options the user can choose from.
-        others (namedTuple): Stores miscellaneous fields of the node.
     """
     name: str
     label: str
     parent: tuple[str, str]
     options: list = field(default_factory=list)
-    others: NamedTuple = field(default_factory=NamedTuple)
 
 
-@dataclass(frozen=True)
-class Option:
+@dataclass
+class _Option:
     """
     Represents an option in the decision tree.
 
@@ -34,7 +31,7 @@ class Option:
         child (str): Name of child node
     """
     label: str
-    child: Node | str | None = None
+    child: _Node | str | None = None
 
 
 class Tree:
@@ -42,19 +39,23 @@ class Tree:
     Collection of nodes to form a decision tree.
 
     Attributes:
-        saveFile (str): Path to save existing tree to.
-        loadFile (str): Path to load existing tree from.
-        logging (bool): True enables logging.
+        savePath (str): Path to save existing tree to.
+        loadPath (str): Path to load existing tree from.
+        logPath(str): Path to log file.
+        enable_logging (bool): True enables logging.
     """
-    def __init__(self, saveFile: str= None, loadfile: str = None, 
-        logfile: str = None, logging: bool= True) -> None:
+    def __init__(self, savePath: str = '', loadPath: str = '', 
+        logPath: str = '', enable_logging: bool = False) -> None:
         # Logging setup
-        LOGPATH = os.path.realpath(__file__) + r'/programLogs.log'
+        if logPath != '':
+            __LOGPATH = os.path.realpath(__file__) + r'/programLogs.log'
+        else:
+            __LOGPATH = logPath
 
-        self.__logger = logging.getself.__logger(__name__)
+        self.__logger = logging.getLogger(__name__)
         self.__logger.setLevel(logging.DEBUG)
 
-        fHandler = logging.FileHandler(LOGPATH, 'a', 'utf-8')
+        fHandler = logging.FileHandler(__LOGPATH, 'a', 'utf-8')
         fHandler.setLevel(logging.DEBUG)
 
         sHandler = logging.StreamHandler()
@@ -67,21 +68,27 @@ class Tree:
         fHandler.setFormatter(fileFormatter)
         sHandler.setFormatter(streamFormatter)
 
-        self.__logger.addHandler(fHandler)
-        self.__logger.addHandler(sHandler)
+        if enable_logging:
+            self.__logger.addHandler(fHandler)
+            self.__logger.addHandler(sHandler)
 
-        if saveFile:
+        if loadPath:
             try:
-                with open(saveFile, 'rb') as f:
-                    self.tree = pickle.load(f)
-                    self.__logger.info("Loaded tree from file")
+                with open(loadPath, 'rb') as f:
+                    self.__filedata = pickle.load(f)
+                    if type(self.__filedata) == dict:
+                        self._tree = self.__filedata
+                        self.__logger.info("Loaded tree from file")
+                    else:
+                        self._tree = {}
+                        self.__logger.error("Invalid file data.")
 
             except FileNotFoundError:
-                self.tree = {}
+                self._tree = {}
                 self.__logger.info("No save file found, starting new tree")
 
         else:
-            self.tree = {}
+            self._tree = {}
             self.__logger.info("No save file given, starting new tree")
 
     def __str__(self) -> str:
@@ -91,46 +98,56 @@ class Tree:
         pass
 
     def __len__(self) -> int:
-        return len(self.tree)
+        return len(self._tree)
 
-    def __getitem__(self, name: str) -> Node:
-        if name in self.tree:
-            return self.tree[name]
+    def __getitem__(self, name: str) -> _Node:
+        if name in self._tree:
+            return self._tree[name]
         else:
             raise KeyError("Node not found")
 
-    def __setitem__(self, node: Node, value: tuple = None) -> None:
-        if node in self.tree:
+    # TODO: remove __setitem__ method and create addnode, editnode methods.
+    def __setitem__(self, name: str, node: _Node | tuple) -> None:
+        if name in self._tree:
             c = {
-                "name": node.name, 
-                "label": node.label,
-                "options": node.options,
-                "others": node.others
+                "name": name, 
+                "label": self._tree[name].label,
+                "options": self._tree[name].options,
             }
-            if value[0] in c:
-                c[value[0]] = value[1]
-                self.tree[node.name] = Node(**c)
-                self.__logger.info("Changed node {}".format(node.name))
+            if node[0] in c:
+                c[node[0]] = node[1]
+                self._tree[name] = _Node(**c)
+                self.__logger.info("Changed node {}".format(name))
             else:
-                raise KeyError(f"Invalid key: key {value[0]} not found.")
+                raise KeyError(f"Invalid key: key {node[0]} not found.")
         else:
             self.__logger.debug("Node not found, creating new node.")
-            self.tree[node.name] = node
+            self._tree[name] = name
 
-            __parent = node.parent[0]
+            __parent = self._tree[name].parent[0]
 
         self.save()
 
+    def addnode(self):
+        pass
+
+    # Not sure if there's a way to delete without disconnecting a whole part.
     def __delitem__(self, name: str) -> None:
-        del self.tree[name]
+        del self._tree[name]
 
     def __contains__(self, name: str) -> bool:
-       return name in self.tree 
+       return name in self._tree 
 
     def save(self) -> None:
         with open('saveData.pickle', 'wb+') as outfile:
-            pickle.dump(self.tree, outfile)
+            pickle.dump(self._tree, outfile)
         self.__logger.info("Saved tree to file")
+
+    def getTree(self) -> dict:
+        """
+        Returns the tree as a list of Nodes.
+        """
+        return self._tree
 
     # def setOption(self, node: Node, option: Option) -> None:
     #     pass
