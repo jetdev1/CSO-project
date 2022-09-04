@@ -2,36 +2,30 @@ import logging
 import os
 import pickle
 from dataclasses import dataclass, field
+from typing import Any
 
 
 @dataclass
-class _Node:
-    """
-    Represents a node in the decision tree.
+class Node:
+     """
+     Represents a node in the decision tree.
+ 
+     Attributes:
+         tree (Tree): Tree to automatically attach this node to.
+         name (str): The name of the node. Used to refer back to the node.
+         label (str): The question that the node asks.
+         parent (tuple): (name of parent node, option to reach this node)
+         options (list): List of options the user can choose from.
+         fields (dict): Additional fields to store in node.
+     """
+     TREE: Any 
+     PARENT: tuple[str, str]
+     NAME: str
+     options: list = field(default_factory=list)
+     fields: dict = field(default_factory=dict)
 
-    Attributes:
-        name (str): The name of the node. Used to refer back to the node.
-        label (str): The question that the node asks.
-        parent (tuple): (name of parent node, option to reach this node)
-        options (list): List of options the user can choose from.
-    """
-    name: str
-    label: str
-    parent: tuple[str, str]
-    options: list = field(default_factory=list)
-
-
-@dataclass
-class _Option:
-    """
-    Represents an option in the decision tree.
-
-    Attributes:
-        label (str): Label of option
-        child (str): Name of child node
-    """
-    label: str
-    child: _Node | str | None = None
+     def __post_init__(self):
+         self.TREE._addnode(self)
 
 
 class Tree:
@@ -44,6 +38,7 @@ class Tree:
         logPath(str): Path to log file.
         enable_logging (bool): True enables logging.
     """
+
     def __init__(self, savePath: str = '', loadPath: str = '', 
         logPath: str = '', enable_logging: bool = False) -> None:
         # Logging setup
@@ -100,14 +95,35 @@ class Tree:
     def __len__(self) -> int:
         return len(self._tree)
 
-    def __getitem__(self, name: str) -> _Node:
+    def __getitem__(self, name: str) -> Node:
         if name in self._tree:
             return self._tree[name]
         else:
             raise KeyError("Node not found")
 
     # TODO: remove __setitem__ method and create addnode, editnode methods.
-    def __setitem__(self, name: str, node: _Node | tuple) -> None:
+    def _addnode(self, node: Node) -> None:
+        """
+        Add node to tree.
+        """
+        if node.NAME not in self._tree:
+            self._tree[node.NAME] = node
+        else:
+            raise ValueError(f"Node with name {node.NAME} exists in tree.")
+
+    def _setnode(self, node: str | Node, field: str, value: Any) -> None:
+        """
+        Edit field(s) of a node in the tree.
+        Arguments:
+            node (str | Node): Name of node to edit
+            field (str | tuple): Field(s) to set 
+            value (Any): New value of field
+        """
+        nd = self._tree[node] if type(node) is str else node
+        if field == 'options':
+            pass
+            
+    def __setitem__(self, name: str, node: Node | tuple) -> None:
         if name in self._tree:
             c = {
                 "name": name, 
@@ -116,7 +132,7 @@ class Tree:
             }
             if node[0] in c:
                 c[node[0]] = node[1]
-                self._tree[name] = _Node(**c)
+                self._tree[name] = Node(**c)
                 self.__logger.info("Changed node {}".format(name))
             else:
                 raise KeyError(f"Invalid key: key {node[0]} not found.")
@@ -127,9 +143,6 @@ class Tree:
             __parent = self._tree[name].parent[0]
 
         self.save()
-
-    def addnode(self):
-        pass
 
     # Not sure if there's a way to delete without disconnecting a whole part.
     def __delitem__(self, name: str) -> None:
