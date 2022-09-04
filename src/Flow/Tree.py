@@ -7,25 +7,33 @@ from typing import Any
 
 @dataclass
 class Node:
-     """
-     Represents a node in the decision tree.
- 
-     Attributes:
-         tree (Tree): Tree to automatically attach this node to.
-         name (str): The name of the node. Used to refer back to the node.
-         label (str): The question that the node asks.
-         parent (tuple): (name of parent node, option to reach this node)
-         options (list): List of options the user can choose from.
-         fields (dict): Additional fields to store in node.
-     """
-     TREE: Any 
-     PARENT: tuple[str, str]
-     NAME: str
-     options: list = field(default_factory=list)
-     fields: dict = field(default_factory=dict)
+    """
+    Represents a node in the decision tree.
 
-     def __post_init__(self):
-         self.TREE._addnode(self)
+    Attributes:
+        tree (Tree): Tree to automatically attach this node to.
+        name (str): The name of the node. Used to refer back to the node.
+        label (str): The question that the node asks.
+        parent (tuple): (name of parent node, option to reach this node)
+        options (list): List of options the user can choose from.
+        fields (dict): Additional fields to store in node.
+    """
+    TREE: Any 
+    PARENT: tuple[str, str]
+    NAME: str
+    options: list = field(default_factory=list)
+    fields: dict = field(default_factory=dict)
+
+    def __post_init__(self):
+        self.TREE._addnode(self)
+        self.TREE[self.PARENT[0]]._setchild(self.PARENT[0], self.PARENT[1])
+        self.opts = {k: '' for k in self.options}
+
+    def _setchild(self, option: str, child: str):
+        if option in self.options:
+            self.opts[option] = child
+        else:
+            raise KeyError(f'Option {option} does not exist in node {self.NAME}')
 
 
 class Tree:
@@ -87,10 +95,18 @@ class Tree:
             self.__logger.info("No save file given, starting new tree")
 
     def __str__(self) -> str:
-        pass
+        """
+        Returns a visual representation of the tree.
+        """
+        CHARS = {
+            'vert': '│',
+            't-joint': '├',
+            'straight': '─',
+            'corner': '└'
+        }
 
     def __repr__(self) -> str:
-        pass
+        return str(self._tree)
 
     def __len__(self) -> int:
         return len(self._tree)
@@ -101,7 +117,15 @@ class Tree:
         else:
             raise KeyError("Node not found")
 
-    # TODO: remove __setitem__ method and create addnode, editnode methods.
+    def __delitem__(self, name: str) -> None:
+        del self._tree[name]
+
+    def __contains__(self, name: str) -> bool:
+       return name in self._tree 
+
+    def pop(self, node: str) -> Node:
+        return self._tree.pop(node)
+
     def _addnode(self, node: Node) -> None:
         """
         Add node to tree.
@@ -111,56 +135,45 @@ class Tree:
         else:
             raise ValueError(f"Node with name {node.NAME} exists in tree.")
 
-    def _setnode(self, node: str | Node, field: str, value: Any) -> None:
+    def setfield(self, node: str, field: Any, value: Any):
         """
-        Edit field(s) of a node in the tree.
+        Edit or add a field to a node in the tree.
         Arguments:
-            node (str | Node): Name of node to edit
-            field (str | tuple): Field(s) to set 
-            value (Any): New value of field
+            node (str): Name of node
+            field (Any): field to chagne
+            value (Any): value of field 
         """
-        nd = self._tree[node] if type(node) is str else node
-        if field == 'options':
-            pass
-            
-    def __setitem__(self, name: str, node: Node | tuple) -> None:
-        if name in self._tree:
-            c = {
-                "name": name, 
-                "label": self._tree[name].label,
-                "options": self._tree[name].options,
-            }
-            if node[0] in c:
-                c[node[0]] = node[1]
-                self._tree[name] = Node(**c)
-                self.__logger.info("Changed node {}".format(name))
-            else:
-                raise KeyError(f"Invalid key: key {node[0]} not found.")
+        if node in self._tree:
+            self._tree[node].fields[field] = value
         else:
-            self.__logger.debug("Node not found, creating new node.")
-            self._tree[name] = name
+            raise KeyError(f'Node {node} does not exist.')
+    
+    def delfield(self, node: str, field: Any):
+        if node in self._tree and node in self._tree[node].fields:
+            del self._tree[node].fields[field]
+        else:
+            raise KeyError('Node/field combination does not exist.')
 
-            __parent = self._tree[name].parent[0]
+    def setoption(self, node: str, label: str, child: str = ''):
+        if node in self._tree:
+            self._tree[node].options[label] = child
+        else:
+            raise KeyError(f'Node {node} does not exist.')
 
-        self.save()
+    def deloption(self, node: str, option: str):
+        if node in self._tree and option in self._tree[node].options:
+            del self._tree[node].options[option]
+
+        else:
+            raise KeyError('node/option combination does not exist.')
 
     # Not sure if there's a way to delete without disconnecting a whole part.
-    def __delitem__(self, name: str) -> None:
-        del self._tree[name]
-
-    def __contains__(self, name: str) -> bool:
-       return name in self._tree 
 
     def save(self) -> None:
         with open('saveData.pickle', 'wb+') as outfile:
             pickle.dump(self._tree, outfile)
         self.__logger.info("Saved tree to file")
 
-    def getTree(self) -> dict:
-        """
-        Returns the tree as a list of Nodes.
-        """
-        return self._tree
 
     # def setOption(self, node: Node, option: Option) -> None:
     #     pass
