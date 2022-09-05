@@ -95,15 +95,21 @@ class Tree:
             self.__logger.info("No save file given, starting new tree")
 
     def __str__(self) -> str:
-        """
-        Returns a visual representation of the tree.
-        """
         CHARS = {
             'vert': '│',
-            't-joint': '├',
-            'straight': '─',
-            'corner': '└'
+            't-joint': '├──',
+            'corner': '└──'
         }
+        INDENT = 3
+        cbranches = []
+
+    def __preorder(self, node: str):
+        """
+        Traverse through the tree using the preorder method
+        """
+        n = self._tree[node]
+        for opt in n:
+            bn = n.options[opt]
 
     def __repr__(self) -> str:
         return str(self._tree)
