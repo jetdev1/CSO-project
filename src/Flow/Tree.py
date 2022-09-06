@@ -95,21 +95,51 @@ class Tree:
             self.__logger.info("No save file given, starting new tree")
 
     def __str__(self) -> str:
-        CHARS = {
-            'vert': '│',
+        self.__CHARS = {
+            'vert': '│  ',
             't-joint': '├──',
-            'corner': '└──'
+            'corner': '└──',
+            'space': ' ' * 3
         }
-        INDENT = 3
-        cbranches = []
 
-    def __preorder(self, node: str):
+        __ret = self.__preorder('root')
+        return "".join(__ret)
+
+    def __preorder(self, node: str, __arr: list = [], indent: int = 0,
+                   space: int = 0, last: bool = False) -> list:
         """
         Traverse through the tree using the preorder method
+        Arguments:
+            node (str): name of node to visit
+            arr (list): accumulates output
+            indent (int): indent level 
+            space (int): indent without verticle char 
+            last (bool): True if current node is last branch of parent
+
+        Returns:
+            list: contains lines of a visual representation of the tree
         """
-        n = self._tree[node]
-        for opt in n:
-            bn = n.options[opt]
+        __opts = self._tree[node].options.keys()
+        __joint = self.__CHARS['corner'] if last else self.__CHARS['t-joint']
+        s = [
+            self.__CHARS['vert'] * (indent - 1 if indent > 0 else 0),
+            self.__CHARS['space'] * space,
+            __joint if (indent+space)> 0 else '',
+            node
+        ]
+        
+        __arr.append("".join(s))
+
+        for n, opt in enumerate(__opts):
+            __arr = self.__preorder(
+                node=opt,
+                __arr=__arr,
+                indent=indent if last else indent + 1,
+                space=space + 1 if last else space,
+                last=(n == (len(__opts) - 1))
+            )
+
+        return __arr
 
     def __repr__(self) -> str:
         return str(self._tree)
@@ -173,20 +203,9 @@ class Tree:
         else:
             raise KeyError('node/option combination does not exist.')
 
-    # Not sure if there's a way to delete without disconnecting a whole part.
-
     def save(self) -> None:
         with open('saveData.pickle', 'wb+') as outfile:
             pickle.dump(self._tree, outfile)
         self.__logger.info("Saved tree to file")
 
-
-    # def setOption(self, node: Node, option: Option) -> None:
-    #     pass
-
-    # def getOption(self, node: Node, option: Option) -> None:
-    #     pass
-
-    # def deleteOption(self, node: Node, option: str) -> None:
-    #     pass
  
