@@ -52,28 +52,29 @@ class Tree:
         self.SAVEPATH = savePath
 
         # Logging setup
-        if logPath != '':
-            __LOGPATH = os.path.realpath(__file__) + r'/programLogs.log'
+        if logPath == '':
+            __arr = os.path.abspath(__file__).split('/')[:-1]
+            __arr.append(r'programlogs.log')
+            __LOGPATH = "/".join(__arr)
         else:
             __LOGPATH = logPath
 
         self.__logger = logging.getLogger(__name__)
         self.__logger.setLevel(logging.DEBUG)
 
-        fHandler = logging.FileHandler(__LOGPATH, 'a', 'utf-8')
-        fHandler.setLevel(logging.DEBUG)
-
-        sHandler = logging.StreamHandler()
-        sHandler.setLevel(logging.WARNING)
-
-        fileFormatter = logging.Formatter('%(asctime)-23s | %(filename)-8s \
-                                            | %(lineno)-3s | %(levelname)-8s | %(message)s')
-
-        streamFormatter = logging.Formatter('%(module)-7s | %(levelname)-8s | %(message)s')
-        fHandler.setFormatter(fileFormatter)
-        sHandler.setFormatter(streamFormatter)
-
         if enable_logging:
+            fHandler = logging.FileHandler(__LOGPATH, 'a+')
+            fHandler.setLevel(logging.INFO)
+
+            sHandler = logging.StreamHandler()
+            sHandler.setLevel(logging.WARNING)
+
+            fileFormatter = logging.Formatter('%(asctime)-23s | %(filename)-8s \
+                                                | %(lineno)-3s | %(levelname)-8s | %(message)s')
+
+            streamFormatter = logging.Formatter('%(module)-7s | %(levelname)-8s | %(message)s')
+            fHandler.setFormatter(fileFormatter)
+            sHandler.setFormatter(streamFormatter)
             self.__logger.addHandler(fHandler)
             self.__logger.addHandler(sHandler)
 
@@ -104,7 +105,13 @@ class Tree:
             'space': ' ' * 3
         }
 
-        __ret = self.__preorder('root')
+        if 'root' not in self._tree:
+            raise KeyError('No root node found in tree.')
+        elif self._tree == {}:
+            raise KeyError('Tree is empty and has no nodes attached.')
+        else:
+            __ret = self.__preorder('root')
+        
         return "".join(__ret)
 
     def __preorder(self, node: str, __arr: list = [], indent: int = 0,
