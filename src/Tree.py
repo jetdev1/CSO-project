@@ -49,6 +49,8 @@ class Tree:
 
     def __init__(self, savePath: str = '', loadPath: str = '', 
         logPath: str = '', enable_logging: bool = False) -> None:
+        self.SAVEPATH = savePath
+
         # Logging setup
         if logPath != '':
             __LOGPATH = os.path.realpath(__file__) + r'/programLogs.log'
