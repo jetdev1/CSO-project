@@ -24,12 +24,12 @@ class Node:
     options: list = field(default_factory=list)
     fields: dict = field(default_factory=dict)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.TREE._addnode(self)
         self.TREE[self.PARENT[0]]._setchild(self.PARENT[0], self.PARENT[1])
         self.opts = {k: '' for k in self.options}
 
-    def _setchild(self, option: str, child: str):
+    def _setchild(self, option: str, child: str) -> None:
         if option in self.options:
             self.opts[option] = child
         else:
@@ -180,7 +180,7 @@ class Tree:
         else:
             raise ValueError(f"Node with name {node.NAME} exists in tree.")
 
-    def setfield(self, node: str, field: Any, value: Any):
+    def setfield(self, node: str, field: Any, value: Any) -> None:
         """
         Edit or add a field to a node in the tree.
         Arguments:
@@ -193,19 +193,19 @@ class Tree:
         else:
             raise KeyError(f'Node {node} does not exist.')
     
-    def delfield(self, node: str, field: Any):
+    def delfield(self, node: str, field: Any) -> None:
         if node in self._tree and node in self._tree[node].fields:
             del self._tree[node].fields[field]
         else:
             raise KeyError('Node/field combination does not exist.')
 
-    def setoption(self, node: str, label: str, child: str = ''):
+    def setoption(self, node: str, label: str, child: str = '') -> None:
         if node in self._tree:
             self._tree[node].options[label] = child
         else:
             raise KeyError(f'Node {node} does not exist.')
 
-    def deloption(self, node: str, option: str):
+    def deloption(self, node: str, option: str) -> None:
         if node in self._tree and option in self._tree[node].options:
             del self._tree[node].options[option]
 
