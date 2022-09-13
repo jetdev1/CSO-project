@@ -5,23 +5,23 @@ from dataclasses import dataclass, field
 from typing import Any
 
 
+# TODO: add rootnode class
 @dataclass
 class Node:
     """
     Represents a node in the decision tree.
 
     Attributes:
-        tree (Tree): Tree to automatically attach this node to.
-        name (str): The name of the node. Used to refer back to the node.
-        label (str): The question that the node asks.
-        parent (tuple): (name of parent node, option to reach this node)
+        TREE (Tree): Tree to automatically attach this node to.
+        NAME (str): The name of the node. Used to refer back to the node.
+        PARENT (tuple): (name of parent node, option to reach this node)
         options (list): List of options the user can choose from.
         fields (dict): Additional fields to store in node.
     """
     TREE: Any 
-    PARENT: tuple[str, str]
     NAME: str
-    options: list = field(default_factory=list)
+    PARENT: tuple[str, str] = field(default_factory=tuple)
+    options: list[Any] = field(default_factory=list)
     fields: dict = field(default_factory=dict)
 
     def __post_init__(self):
