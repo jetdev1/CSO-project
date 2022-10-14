@@ -15,23 +15,29 @@ class Node:
         TREE (Tree): Tree to automatically attach this node to.
         NAME (str): The name of the node. Used to refer back to the node.
         PARENT (tuple): (name of parent node, option to reach this node)
+        ROOT (bool): Pass True if this is the root node.
         options (list): List of options the user can choose from.
         fields (dict): Additional fields to store in node.
     """
     TREE: Any 
     NAME: str
     PARENT: tuple[str, str] = field(default_factory=tuple)
+    ROOT: bool = False
     options: list[Any] = field(default_factory=list)
     fields: dict = field(default_factory=dict)
 
     def __post_init__(self) -> None:
+        if not self.ROOT:
+            self.TREE[self.PARENT[0]]._setchild(self.PARENT[1], self.NAME)
+
         self.TREE._addnode(self)
-        self.TREE[self.PARENT[0]]._setchild(self.PARENT[0], self.PARENT[1])
         self.opts = {k: '' for k in self.options}
 
     def _setchild(self, option: str, child: str) -> None:
-        if option in self.options:
+        if option in self.opts:
             self.opts[option] = child
+            if self.ROOT:
+                self.TREE._setroot(self.NAME)
         else:
             raise KeyError(f'Option {option} does not exist in node {self.NAME}')
 
@@ -49,6 +55,7 @@ class Tree:
 
     def __init__(self, savePath: str = '', loadPath: str = '', 
         logPath: str = '', enable_logging: bool = False) -> None:
+        self.__root = ''
         self.SAVEPATH = savePath
 
         # Logging setup
@@ -105,16 +112,16 @@ class Tree:
             'space': ' ' * 3
         }
 
-        if 'root' not in self._tree:
+        if self.__root == '':
             raise KeyError('No root node found in tree.')
         elif self._tree == {}:
             raise KeyError('Tree is empty and has no nodes attached.')
         else:
-            __ret = self.__preorder('root')
+            __ret = self.__preorder(self.__root)
         
         return "".join(__ret)
 
-    def __preorder(self, node: str, __arr: list = [], indent: int = 0,
+    def __preorder(self, node: str, arr: list = list(), indent: int = 0,
                    space: int = 0, last: bool = False) -> list:
         """
         Traverse through the tree using the preorder method
@@ -128,27 +135,27 @@ class Tree:
         Returns:
             list: contains lines of a visual representation of the tree
         """
-        __opts = self._tree[node].options.keys()
+        __opts = self._tree[node].opts.keys()
         __joint = self.__CHARS['corner'] if last else self.__CHARS['t-joint']
         s = [
             self.__CHARS['vert'] * (indent - 1 if indent > 0 else 0),
             self.__CHARS['space'] * space,
-            __joint if (indent+space)> 0 else '',
+            __joint if (indent+space) > 0 else '',
             node
         ]
         
-        __arr.append("".join(s))
+        arr.append("".join(s))
 
         for n, opt in enumerate(__opts):
-            __arr = self.__preorder(
-                node=opt,
-                __arr=__arr,
+            arr = self.__preorder(
+                node=self._tree[node].opts[opt],
+                arr=arr,
                 indent=indent if last else indent + 1,
                 space=space + 1 if last else space,
                 last=(n == (len(__opts) - 1))
             )
 
-        return __arr
+        return arr
 
     def __repr__(self) -> str:
         return str(self._tree)
@@ -170,6 +177,12 @@ class Tree:
 
     def pop(self, node: str) -> Node:
         return self._tree.pop(node)
+
+    def _setroot(self, name: str):
+        """
+        Assign node as root node.
+        """
+        self.__root = name
 
     def _addnode(self, node: Node) -> None:
         """
