@@ -3,6 +3,7 @@ import os
 import pickle
 from dataclasses import dataclass, field
 from typing import Any
+from pathlib import Path
 
 
 # TODO: add rootnode class
@@ -55,14 +56,16 @@ class Tree:
 
     def __init__(self, savePath: str = '', loadPath: str = '', 
         logPath: str = '', enable_logging: bool = False) -> None:
+<<<<<<< HEAD
         self.__root = ''
         self.SAVEPATH = savePath
 
         # Logging setup
+=======
+        self._SAVEPATH = savePath # Logging setup
+>>>>>>> 0171a8f3d0a1aaa2ed55fa03d9cb9bec2f45e37b
         if logPath == '':
-            __arr = os.path.abspath(__file__).split('/')[:-1]
-            __arr.append(r'programlogs.log')
-            __LOGPATH = "/".join(__arr)
+            __LOGPATH = str(Path(__file__).with_name('log.txt'))
         else:
             __LOGPATH = logPath
 
