@@ -1,70 +1,73 @@
 import logging
-import pickle
-from typing import Any
 from pathlib import Path
-from Tree.Node import Node
+from typing import Any
+from dataclasses import dataclass, field
+
+
+@dataclass
+class Node:
+    """
+    Node in tree data structure
+
+    Attributes:
+        TREE (Tree): Tree to automatically attach this node to.
+        NAME (str): The name of the node. Used to refer back to the node.
+        PARENT (tuple): (name of parent node, option to reach this node)
+        ROOT (bool): Pass True if this is the root node.
+        options (list): List of options the user can choose from.
+        fields (dict): Additional fields to store in node.
+    """
+    NAME: str
+    PARENT: tuple[str, str] = field(default_factory=tuple)
+    ROOT: bool = False
+    label: str = ''
+    opts: list[str] = field(default_factory=list)
+    fields: dict = field(default_factory=dict)
+
+    def __post_init__(self):
+        self.options = {k: '' for k in self.opts}
+
+    def _setchild(self, option: str, child: str):
+        if option in self.options:
+            self.options[option] = child
+        else:
+            raise KeyError(f"Option '{option}' does not exist in node '{self.NAME}")
 
 
 class Tree:
     """
-    Collection of nodes to form a decision tree.
+    Collection of nodes to form a Tree structure
 
     Attributes:
-        savePath (str): Path to save existing tree to.
-        loadPath (str): Path to load existing tree from.
-        logPath(str): Path to log file.
-        enable_logging (bool): True enables logging.
+        None.
     """
 
-    def __init__(self, savePath: str = '', loadPath: str = '', 
-        logPath: str = '', enable_logging: bool = False) -> None:
+    def __init__(self) -> None:
         self.__root = ''
-        self.SAVEPATH = savePath
-
+        self._tree = {}
+        
         # Logging setup
-        self._SAVEPATH = savePath # Logging setup
-        if logPath == '':
-            __LOGPATH = str(Path(__file__).with_name('log.txt'))
-        else:
-            __LOGPATH = logPath
+        self.__logger = self.__createlogger()
 
-        self.__logger = logging.getLogger(__name__)
-        self.__logger.setLevel(logging.DEBUG)
+    def __createlogger(self):
+        logger = logging.getLogger(__name__)
+        logger.setLevel(logging.DEBUG)
 
-        if enable_logging:
-            fHandler = logging.FileHandler(__LOGPATH, 'a+')
-            fHandler.setLevel(logging.INFO)
+        fhandler = logging.FileHandler(str(Path(__file__).with_name('log.txt')), 'a+')
+        fhandler.setLevel(logging.INFO)
+        shandler = logging.StreamHandler()
+        shandler.setLevel(logging.WARNING)
+        fileFormatter = logging.Formatter('%(asctime)-23s | %(filename)-8s \
+                                            | %(lineno)-3s | %(levelname)-8s | %(message)s')
+        streamFormatter = logging.Formatter('%(module)-7s | %(levelname)-8s | %(message)s')
+        fhandler.setFormatter(fileFormatter)
+        shandler.setFormatter(streamFormatter)
 
-            sHandler = logging.StreamHandler()
-            sHandler.setLevel(logging.WARNING)
+        logger.addHandler(fhandler)
+        logger.addHandler(shandler)
 
-            fileFormatter = logging.Formatter('%(asctime)-23s | %(filename)-8s \
-                                                | %(lineno)-3s | %(levelname)-8s | %(message)s')
+        return logger
 
-            streamFormatter = logging.Formatter('%(module)-7s | %(levelname)-8s | %(message)s')
-            fHandler.setFormatter(fileFormatter)
-            sHandler.setFormatter(streamFormatter)
-            self.__logger.addHandler(fHandler)
-            self.__logger.addHandler(sHandler)
-
-        if loadPath:
-            try:
-                with open(loadPath, 'rb') as f:
-                    self.__filedata = pickle.load(f)
-                    if type(self.__filedata) == dict:
-                        self._tree = self.__filedata
-                        self.__logger.info("Loaded tree from file")
-                    else:
-                        self._tree = {}
-                        self.__logger.error("Invalid file data.")
-
-            except FileNotFoundError:
-                self._tree = {}
-                self.__logger.info("No save file found, starting new tree")
-
-        else:
-            self._tree = {}
-            self.__logger.info("No save file given, starting new tree")
 
     def __str__(self) -> str:
         self.__CHARS = {
@@ -146,14 +149,20 @@ class Tree:
         """
         self.__root = name
 
-    def _addnode(self, node: Node) -> None:
+    def _addnode(self, node: Node | list[Node], root: bool = False) -> None:
         """
         Add node to tree.
+        
+        Attributes:
+            node (Node | list[node]): Node(s) to add to tree
+            root (bool): Defaults to False. Pass True if node is root node,
         """
-        if node.NAME not in self._tree:
+
+        if type(node) is list:
+            for n in node:
+                self._tree[n.NAME] = n
+        elif type(node) is Node:
             self._tree[node.NAME] = node
-        else:
-            raise ValueError(f"Node with name {node.NAME} exists in tree.")
 
     def setfield(self, node: str, field: Any, value: Any) -> None:
         """
@@ -187,9 +196,3 @@ class Tree:
         else:
             raise KeyError('node/option combination does not exist.')
 
-    def save(self) -> None:
-        with open('saveData.pickle', 'wb+') as outfile:
-            pickle.dump(self._tree, outfile)
-        self.__logger.info("Saved tree to file")
-
- 
