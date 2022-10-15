@@ -1,46 +1,8 @@
 import logging
-import os
 import pickle
-from dataclasses import dataclass, field
 from typing import Any
 from pathlib import Path
-
-
-# TODO: add rootnode class
-@dataclass
-class Node:
-    """
-    Represents a node in the decision tree.
-
-    Attributes:
-        TREE (Tree): Tree to automatically attach this node to.
-        NAME (str): The name of the node. Used to refer back to the node.
-        PARENT (tuple): (name of parent node, option to reach this node)
-        ROOT (bool): Pass True if this is the root node.
-        options (list): List of options the user can choose from.
-        fields (dict): Additional fields to store in node.
-    """
-    TREE: Any 
-    NAME: str
-    PARENT: tuple[str, str] = field(default_factory=tuple)
-    ROOT: bool = False
-    options: list[Any] = field(default_factory=list)
-    fields: dict = field(default_factory=dict)
-
-    def __post_init__(self) -> None:
-        if not self.ROOT:
-            self.TREE[self.PARENT[0]]._setchild(self.PARENT[1], self.NAME)
-
-        self.TREE._addnode(self)
-        self.opts = {k: '' for k in self.options}
-
-    def _setchild(self, option: str, child: str) -> None:
-        if option in self.opts:
-            self.opts[option] = child
-            if self.ROOT:
-                self.TREE._setroot(self.NAME)
-        else:
-            raise KeyError(f'Option {option} does not exist in node {self.NAME}')
+from Tree.Node import Node
 
 
 class Tree:
