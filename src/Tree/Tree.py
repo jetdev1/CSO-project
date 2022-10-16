@@ -25,7 +25,6 @@ class Node:
 
     def __post_init__(self):
         self.options = {k: '' for k in self.opts}
-        # print(self.options)
 
     def _setchild(self, option: str, child: str):
         if option in self.options:
@@ -97,7 +96,6 @@ class Tree:
         Returns:
             list: contains lines of a visual representation of the tree
         """
-        # print(f'Running __preorder with arguments {node=}, {arr=}, {indent=}, {space=}, {last=}')
         __opts = self._tree[node].options.keys()
         __joint = self.__CHARS['corner'] if last else self.__CHARS['t-joint']
         s = [
