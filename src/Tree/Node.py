@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from Tree.Tree import Tree
+from Tree.Tree import *
 
 
 @dataclass

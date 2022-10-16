@@ -10,11 +10,10 @@ class Node:
     Node in tree data structure
 
     Attributes:
-        TREE (Tree): Tree to automatically attach this node to.
         NAME (str): The name of the node. Used to refer back to the node.
         PARENT (tuple): (name of parent node, option to reach this node)
         ROOT (bool): Pass True if this is the root node.
-        options (list): List of options the user can choose from.
+        optns (list): List of options the user can choose from.
         fields (dict): Additional fields to store in node.
     """
     NAME: str
@@ -26,6 +25,7 @@ class Node:
 
     def __post_init__(self):
         self.options = {k: '' for k in self.opts}
+        # print(self.options)
 
     def _setchild(self, option: str, child: str):
         if option in self.options:
@@ -36,10 +36,7 @@ class Node:
 
 class Tree:
     """
-    Collection of nodes to form a Tree structure
-
-    Attributes:
-        None.
+    Collection of nodes to form a Tree structure.
     """
 
     def __init__(self) -> None:
@@ -84,7 +81,7 @@ class Tree:
         else:
             __ret = self.__preorder(self.__root)
         
-        return "".join(__ret)
+        return "\n".join(__ret)
 
     def __preorder(self, node: str, arr: list = list(), indent: int = 0,
                    space: int = 0, last: bool = False) -> list:
@@ -100,7 +97,8 @@ class Tree:
         Returns:
             list: contains lines of a visual representation of the tree
         """
-        __opts = self._tree[node].opts.keys()
+        # print(f'Running __preorder with arguments {node=}, {arr=}, {indent=}, {space=}, {last=}')
+        __opts = self._tree[node].options.keys()
         __joint = self.__CHARS['corner'] if last else self.__CHARS['t-joint']
         s = [
             self.__CHARS['vert'] * (indent - 1 if indent > 0 else 0),
@@ -113,7 +111,7 @@ class Tree:
 
         for n, opt in enumerate(__opts):
             arr = self.__preorder(
-                node=self._tree[node].opts[opt],
+                node=self._tree[node].options[opt],
                 arr=arr,
                 indent=indent if last else indent + 1,
                 space=space + 1 if last else space,
@@ -143,13 +141,18 @@ class Tree:
     def pop(self, node: str) -> Node:
         return self._tree.pop(node)
 
-    def _setroot(self, name: str):
+    def _setroot(self, node: Node):
         """
         Assign node as root node.
-        """
-        self.__root = name
 
-    def _addnode(self, node: Node | list[Node], root: bool = False) -> None:
+        Arguments:
+            node: Name of root node.
+        """
+
+        self.__root = node.NAME
+        self._tree[node.NAME] = node
+
+    def _addnode(self, node: Node | list[Node]) -> None:
         """
         Add node to tree.
         
@@ -161,8 +164,10 @@ class Tree:
         if type(node) is list:
             for n in node:
                 self._tree[n.NAME] = n
+                self._tree[n.PARENT[0]]._setchild(n.PARENT[1], n.NAME)
         elif type(node) is Node:
             self._tree[node.NAME] = node
+            self._tree[node.PARENT[0]]._setchild(node.PARENT[1], node.NAME)
 
     def setfield(self, node: str, field: Any, value: Any) -> None:
         """
