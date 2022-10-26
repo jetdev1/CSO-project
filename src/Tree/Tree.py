@@ -167,6 +167,9 @@ class Tree:
             self._tree[node.NAME] = node
             self._tree[node.PARENT[0]]._setchild(node.PARENT[1], node.NAME)
 
+    def getroot(self):
+        return self.__root
+
     def setfield(self, node: str, field: Any, value: Any) -> None:
         """
         Edit or add a field to a node in the tree.
