@@ -10,11 +10,11 @@ class Node:
     Node in tree data structure
 
     Attributes:
-        NAME (str): The name of the node. Used to refer back to the node.
-        PARENT (tuple): (name of parent node, option to reach this node)
-        ROOT (bool): Pass True if this is the root node.
-        optns (list): List of options the user can choose from.
-        fields (dict): Additional fields to store in node.
+    NAME (str): The name of the node. Used to refer back to the node.
+    PARENT (tuple): (name of parent node, option to reach this node)
+    ROOT (bool): Pass True if this is the root node.
+    optns (list): List of options the user can choose from.
+    fields (dict): Additional fields to store in node.
     """
     NAME: str
     PARENT: tuple[str, str] = field(default_factory=tuple)
@@ -24,7 +24,7 @@ class Node:
     fields: dict = field(default_factory=dict)
 
     def __post_init__(self):
-        self.options = {k: '' for k in self.opts}
+        self.options = {k: 'Untitled' for k in self.opts}
 
     def _setchild(self, option: str, child: str):
         if option in self.options:
@@ -40,7 +40,7 @@ class Tree:
 
     def __init__(self) -> None:
         self.__root = ''
-        self._tree = {}
+        self._tree = {'Untitled': Node(NAME='Untitled')}
         
         # Logging setup
         self.__logger = self.__createlogger()
