@@ -1,5 +1,6 @@
 import pytest
-from Tree.Tree import Tree, Node
+
+from Tree.Tree import Node, Tree
 
 
 @pytest.fixture

@@ -1,7 +1,9 @@
-import streamlit as st
-from pathlib import Path
-from Tree import Tree, Node
 import pickle
+from pathlib import Path
+
+import streamlit as st
+
+from Tree import Node, Tree
 
 
 def genTree():
