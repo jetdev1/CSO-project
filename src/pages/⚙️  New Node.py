@@ -1,51 +1,59 @@
-import pickle
-from pathlib import Path
-
 import streamlit as st
 
-from Tree import Node, Tree
+import Tree
 
 
-def genTree():
-    try:
-        with open(Path(__file__).with_name('savedata.pickle'), 'rb') as outfile:
-            t = pickle.load(outfile)
+class CreateNode:
+    def __init__(self) -> None:
+        self.t = Tree.getTree()
 
-    except FileNotFoundError:
-        t = Tree()
+        st.header('New Node')
+        self.name = st.text_input('Name', key='name')
+        self.label = st.text_input('Description', key='label')
+        self.isroot = st.checkbox('Root')
+        self.parent = st.selectbox('Parent', self.t.keys())
 
-    return t
+        if self.parent:
+            self.parentopt = st.selectbox('Parent Option',
+                                     self.t[self.parent].options.keys())
+            self.opts = st.text_area('Type each option on a new line.', key='opts')
+            st.button('Create', on_click=self.submit)
 
-def createnode() -> None:
-    global parentopt
 
-    st.header('New Node')
-    name = st.text_input('Name', key='name')
-    label = st.text_input('Description', key='label')
-    parent = st.selectbox('Parent', t._tree.keys(), key='parent')
-    if parent:
-        parentopt = st.selectbox('Parent Option',
-                                 t[parent].options.keys(), key='parentopt')
-        opts = st.text_area('List of Options: Place each option on separate lines',
-                            key='opts')
-        submitted = st.button('Create', on_click=__cleartext)
-        if submitted and parentopt:
-            t._addnode(
-                Node(NAME=name, PARENT=(parent, parentopt), label=label,
-                     opts=opts.split('\n'))
-            )
-            st.info(f"Created node with name \"{name}\"")
+    def submit(self) -> None:
+        fields = ('name', 'label', 'opts')
+        for f in fields:
+            st.session_state[f] = ''
 
-def __cleartext() -> None:
-    global parentopt
+        if self.name == '':
+            st.warning('Name is required.')
 
-    fields = ('name', 'label', 'opts')
-    for f in fields:
-        st.session_state[f] = ''
-    if not parentopt:
-        st.warning('A parent option is required.')
-            
+        elif self.name == 'Untitled':
+            st.warning('Name of node cannot be "Untitled"')
+
+        else:
+            # All pass, create node.
+            if self.isroot and self.parent and self.parentopt:
+                self.t._addnode(
+                    Tree.Node(NAME=self.name, ROOT=self.isroot,
+                              label=self.label,
+                              opts=self.opts.split('\n')
+                    )
+                )
+                st.info(f"Node '{self.name}' successfully created.")
+                Tree.save(self.t)
+
+            elif self.parent and self.parentopt:
+                self.t._addnode(
+                    Tree.Node(NAME=self.name,
+                              PARENT=(self.parent, self.parentopt),
+                              label=self.label,
+                              opts=self.opts.split('\n')
+                    )
+                )
+            st.info(f"Node '{self.name}' successfully created.")
+            Tree.save(self.t)
+
 if __name__ == '__main__':
-    t = genTree()
-    createnode()
+    CreateNode()
 

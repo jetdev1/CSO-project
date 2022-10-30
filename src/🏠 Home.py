@@ -1,20 +1,7 @@
-import pickle
-from pathlib import Path
-
 import streamlit as st
 
-from Tree import Node, Tree
+from Tree import Tree, getTree
 
-
-def genTree():
-    try:
-        with open(Path(__file__).with_name('savedata.pickle'), 'rb') as outfile:
-            t = pickle.load(outfile)
-
-    except FileNotFoundError:
-        t = Tree()
-
-    return t
 
 def section(name: str, t: Tree):
     node = t[name]
@@ -28,13 +15,20 @@ def section(name: str, t: Tree):
     else:
         st.subheader(name)
 
-# Set sidebar width
-st.markdown(f'''
-    <style>
-    section[data-testid="stSidebar"] .css-ng1t4o {{width: 14rem;}}
-    </style>
-''', unsafe_allow_html=True)
 
-st.title('Home')
-t = genTree()
-section(t.getroot(), t)
+if __name__ == '__main__':
+    # Set sidebar width
+    st.markdown(f"""
+        <style>
+        section[data-testid="stSidebar"] .css-ng1t4o {{width: 14rem;}}
+        </style>
+    """, unsafe_allow_html=True)
+
+    st.title('Home')
+    t = getTree()
+    root = t.getroot()
+    if root != 'Untitled':
+        section(root, t)
+    else:
+        st.header('There are no root nodes.')
+        st.markdown('> Create a node and check the "root" checkbox')

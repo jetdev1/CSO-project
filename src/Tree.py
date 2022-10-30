@@ -1,7 +1,8 @@
 import logging
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Dict
+import pickle
 
 
 @dataclass
@@ -10,18 +11,19 @@ class Node:
     Node in tree data structure
 
     Attributes:
-    NAME (str): The name of the node. Used to refer back to the node.
-    PARENT (tuple): (name of parent node, option to reach this node)
-    ROOT (bool): Pass True if this is the root node.
-    optns (list): List of options the user can choose from.
-    fields (dict): Additional fields to store in node.
+        NAME (str): The name of the node. Used to refer back to the node.
+        PARENT (tuple): (name of parent node, option to reach this node)
+        ROOT (bool): Pass True if this is the root node.
+        label (str): Description of node.
+        opts (list): List of options the user can choose from.
+        fields (dict): Additional fields to store in node.
     """
     NAME: str
     PARENT: tuple[str, str] = field(default_factory=tuple)
     ROOT: bool = False
     label: str = ''
     opts: list[str] = field(default_factory=list)
-    fields: dict = field(default_factory=dict)
+    fields: Dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self):
         self.options = {k: 'Untitled' for k in self.opts}
@@ -39,7 +41,7 @@ class Tree:
     """
 
     def __init__(self) -> None:
-        self.__root = ''
+        self.__root = 'Untitled'
         self._tree = {'Untitled': Node(NAME='Untitled')}
         
         # Logging setup
@@ -64,6 +66,11 @@ class Tree:
 
         return logger
 
+    def keys(self) -> list:
+        """
+        Returns the keys of the tree as a list.
+        """
+        return list(self._tree.keys())
 
     def __str__(self) -> str:
         self.__CHARS = {
@@ -201,4 +208,19 @@ class Tree:
 
         else:
             raise KeyError('node/option combination does not exist.')
+
+
+def getTree() -> Tree:
+    try:
+        with open(Path(__file__).with_name('savedata.pickle'), 'rb') as outfile:
+            t = pickle.load(outfile)
+    except FileNotFoundError:
+        t = Tree()
+
+    return t
+
+def save(t):
+    with open(Path(__file__).with_name('savedata.pickle'), 'wb+') as infile:
+        pickle.dump(t, infile)
+
 

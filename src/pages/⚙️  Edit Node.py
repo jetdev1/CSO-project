@@ -1,25 +1,11 @@
-import pickle
-from pathlib import Path
-
 import streamlit as st
 
-from Tree import Tree
-
-
-def genTree() -> Tree:
-    try:
-        with open(Path(__file__).with_name('savedata.pickle'), 'rb') as outfile:
-            t = pickle.load(outfile)
-
-    except FileNotFoundError:
-        t = Tree()
-
-    return t
+from Tree import getTree, save
 
 
 def editnode():
     global t
-    t = genTree()
+    t = getTree()
     st.title('Edit')
     node = st.selectbox('Node', t._tree.keys())
     if node:
@@ -44,10 +30,6 @@ def editnode():
             st.info(f"Deleted node {node}")
             del(t, node)
 
-def savedata():
-    global t
-    with open(Path(__file__).with_name('savedata.pickle'), 'wb+') as outfile:
-        pickle.dump(t, outfile)
 
 if __name__ == '__main__':
     editnode()
