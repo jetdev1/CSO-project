@@ -1,9 +1,8 @@
 import streamlit as st
+import Tree
 
-from Tree import Tree, getTree
 
-
-def section(name: str, t: Tree):
+def section(name: str, t: Tree.Tree):
     node = t[name]
     if list(node.options.keys()) != []:
         selection = st.radio(
@@ -25,10 +24,13 @@ if __name__ == '__main__':
     """, unsafe_allow_html=True)
 
     st.title('Home')
-    t = getTree()
-    root = t.getroot()
+    
+    tree = Tree.getTree()
+    root = tree.getroot()
     if root != 'Untitled':
-        section(root, t)
+        section(root, tree)
+
     else:
         st.header('There are no root nodes.')
-        st.markdown('> Create a node and check the "root" checkbox')
+        st.markdown('Create a node and check the "root" checkbox')
+

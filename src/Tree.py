@@ -41,7 +41,7 @@ class Tree:
     """
 
     def __init__(self) -> None:
-        self.__root = 'Untitled'
+        self.root = 'Untitled'
         self._tree = {'Untitled': Node(NAME='Untitled')}
         
         # Logging setup
@@ -80,12 +80,12 @@ class Tree:
             'space': ' ' * 3
         }
 
-        if self.__root == '':
+        if self.root == '':
             raise KeyError('No root node found in tree.')
         elif self._tree == {}:
             raise KeyError('Tree is empty and has no nodes attached.')
         else:
-            __ret = self.__preorder(self.__root)
+            __ret = self.__preorder(self.root)
         
         return "\n".join(__ret)
 
@@ -135,9 +135,12 @@ class Tree:
         if name in self._tree:
             return self._tree[name]
         else:
-            raise KeyError("Node not found")
+            raise KeyError(f"Node {name} not found")
 
     def __delitem__(self, name: str) -> None:
+        if name == self.root:
+            self.root = 'Untitled'
+
         del self._tree[name]
 
     def __contains__(self, name: str) -> bool:
@@ -154,7 +157,7 @@ class Tree:
             node: Name of root node.
         """
 
-        self.__root = node.NAME
+        self.root = node.NAME
         self._tree[node.NAME] = node
 
     def _addnode(self, node: Node | list[Node]) -> None:
@@ -175,7 +178,7 @@ class Tree:
             self._tree[node.PARENT[0]]._setchild(node.PARENT[1], node.NAME)
 
     def getroot(self):
-        return self.__root
+        return self.root
 
     def setfield(self, node: str, field: Any, value: Any) -> None:
         """
@@ -220,7 +223,9 @@ def getTree() -> Tree:
     return t
 
 def save(t):
-    with open(Path(__file__).with_name('savedata.pickle'), 'wb+') as infile:
+    # Saves to data file in src directory
+    p = Path(__file__).with_name('savedata.pickle')
+    with open(p, 'wb+') as infile:
         pickle.dump(t, infile)
 
 

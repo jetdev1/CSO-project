@@ -1,59 +1,72 @@
-import streamlit as st
-
+import streamlit as st 
+from pathlib import Path
 import Tree
 
 
 class CreateNode:
     def __init__(self) -> None:
-        self.t = Tree.getTree()
+        # Constants and variables
+        self.tree = Tree.getTree()
+        self.PATH = Path(__file__).parents[0].with_name('savedata.pickle')
 
-        st.header('New Node')
         self.name = st.text_input('Name', key='name')
         self.label = st.text_input('Description', key='label')
         self.isroot = st.checkbox('Root')
-        self.parent = st.selectbox('Parent', self.t.keys())
-
+        self.parent = st.selectbox('Parent', self.tree.keys(),
+                                   disabled=self.isroot)
         if self.parent:
-            self.parentopt = st.selectbox('Parent Option',
-                                     self.t[self.parent].options.keys())
-            self.opts = st.text_area('Type each option on a new line.', key='opts')
-            st.button('Create', on_click=self.submit)
-
+            self.parentOption = st.selectbox(
+                'Parent Option',
+                self.tree[self.parent].options.keys()
+            )
+        self.options = st.text_area(
+            'Type each option on a new line',
+            key='options'
+        )
+        st.button(
+            'Create',
+            on_click=self.submit
+        )
 
     def submit(self) -> None:
-        fields = ('name', 'label', 'opts')
+        if self.name == '':
+            st.warning('A name is required.')
+
+        elif self.name == 'Untitled':
+            st.warning('The name "Untitled" cannot be used.')
+
+        elif self.isroot:
+            self.tree._setroot(
+                Tree.Node(
+                    NAME=self.name,
+                    label=self.label,
+                    opts=self.options.split('\n')
+                )
+            )
+            Tree.save(self.tree)
+            st.info(f"Node '{self.name}' successfully created.")
+            self.clearfields()
+
+        elif self.parent and self.parentOption:
+            self.tree._addnode(
+                Tree.Node(
+                    NAME=self.name,
+                    PARENT=(self.parent, self.parentOption),
+                    label=self.label,
+                    opts=self.options.split('\n')
+                )
+            )
+            Tree.save(self.tree)
+            self.clearfields()
+
+        else:
+            st.warning('Node not created.')
+
+    def clearfields(self) -> None:
+        fields = ('name', 'label', 'options')
         for f in fields:
             st.session_state[f] = ''
 
-        if self.name == '':
-            st.warning('Name is required.')
-
-        elif self.name == 'Untitled':
-            st.warning('Name of node cannot be "Untitled"')
-
-        else:
-            # All pass, create node.
-            if self.isroot and self.parent and self.parentopt:
-                self.t._addnode(
-                    Tree.Node(NAME=self.name, ROOT=self.isroot,
-                              label=self.label,
-                              opts=self.opts.split('\n')
-                    )
-                )
-                st.info(f"Node '{self.name}' successfully created.")
-                Tree.save(self.t)
-
-            elif self.parent and self.parentopt:
-                self.t._addnode(
-                    Tree.Node(NAME=self.name,
-                              PARENT=(self.parent, self.parentopt),
-                              label=self.label,
-                              opts=self.opts.split('\n')
-                    )
-                )
-            st.info(f"Node '{self.name}' successfully created.")
-            Tree.save(self.t)
-
 if __name__ == '__main__':
     CreateNode()
-
+        
