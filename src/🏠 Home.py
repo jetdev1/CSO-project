@@ -5,6 +5,7 @@ import Tree
 def section(name: str, t: Tree.Tree):
     node = t[name]
     if list(node.options.keys()) != []:
+        print(node.options.keys())
         selection = st.radio(
             node.label,
             node.options.keys()

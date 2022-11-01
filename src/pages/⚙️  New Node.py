@@ -48,14 +48,23 @@ class CreateNode:
             self.clearfields()
 
         elif self.parent and self.parentOption:
-            self.tree._addnode(
-                Tree.Node(
-                    NAME=self.name,
-                    PARENT=(self.parent, self.parentOption),
-                    label=self.label,
-                    opts=self.options.split('\n')
+            if self.options != '':
+                self.tree._addnode(
+                    Tree.Node(
+                        NAME=self.name.strip(),
+                        PARENT=(self.parent, self.parentOption),
+                        label=self.label.strip(),
+                        opts=self.options.strip().split('\n')
+                    )
                 )
-            )
+            else:
+                self.tree._addnode(
+                    Tree.Node(
+                        NAME=self.name.strip(),
+                        PARENT=(self.parent, self.parentOption),
+                    )
+                )
+
             Tree.save(self.tree)
             self.clearfields()
 
