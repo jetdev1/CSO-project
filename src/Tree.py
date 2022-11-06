@@ -222,7 +222,9 @@ def getTree() -> Tree:
 
     return t
 
-def save(t):
+def save(t: Tree):
+    if 'Untitled' not in t:
+        t._addnode(Node('Untitled'))
     # Saves to data file in src directory
     p = Path(__file__).with_name('savedata.pickle')
     with open(p, 'wb+') as infile:

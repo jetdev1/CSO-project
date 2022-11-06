@@ -7,7 +7,7 @@ class EditNode:
         self.tree = Tree.getTree()
         
         st.title('Edit')
-        node = st.selectbox('Node', self.tree._tree.keys())
+        node = st.selectbox('Node', list(self.tree._tree.keys()))
         
         if node:
             self.value = st.text_input('Description', self.tree[node].label)
@@ -30,9 +30,12 @@ class EditNode:
 
         with col2:
             if st.button('Delete') and node:
-                del self.tree[node]
-                Tree.save(self.tree)
-                st.info(f"Deleted node '{node}'")
+                if node != 'Untitled':
+                    del self.tree[node]
+                    Tree.save(self.tree)
+                    st.info(f"Deleted node '{node}'")
+                else:
+                    st.info('The node Untitled cannot be deleted.')
 
 if __name__ == '__main__':
     EditNode()
