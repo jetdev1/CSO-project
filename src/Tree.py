@@ -230,4 +230,7 @@ def save(t: Tree):
     with open(p, 'wb+') as infile:
         pickle.dump(t, infile)
 
+def getfile():
+    with open(Path(__file__).with_name('savedata.pickle'), 'rb') as outfile:
+        return outfile
 
