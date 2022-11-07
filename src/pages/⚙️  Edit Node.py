@@ -41,7 +41,8 @@ class EditNode:
         st.markdown('---')
         st.header('Override root node')
         n = st.selectbox('New root node', self.tree._tree.keys())
-        if n:
+
+        if n and st.button('Override'):
             self.tree._setroot(self.tree[n])
             st.info('Root has been updated!')
 
