@@ -44,6 +44,7 @@ class EditNode:
 
         if n and st.button('Override'):
             self.tree._setroot(self.tree[n])
+            Tree.save(self.tree)
             st.info('Root has been updated!')
 
 if __name__ == '__main__':
