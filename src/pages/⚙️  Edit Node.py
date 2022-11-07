@@ -37,6 +37,14 @@ class EditNode:
                 else:
                     st.info('The node Untitled cannot be deleted.')
 
+
+        st.markdown('---')
+        st.header('Override root node')
+        n = st.selectbox('Node', self.tree._tree.keys())
+        if n:
+            self.tree._setroot(self.tree[n])
+            st.info('Root has been updated!')
+
 if __name__ == '__main__':
     EditNode()
 
