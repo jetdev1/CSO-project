@@ -1,26 +1,11 @@
-# Flow
-Project to recreate the flowchart of the KKFSC organisation.
+This is a text-based decision tree system made for the KKFSC.
 
-# Developer notes
-## Flow.py
-Flow.py houses the data container classes for nodes in the flowchart. Each FlowOption contains its own ID and label, while each node, FlowObject, contains its own ID, the ID of its parent, the ID of its parent option and an array of the IDs of the options it contains.
+Unfortunately, we were unable to create a drag-and-drop interface to edit the tree. We had to use a text-based system, where we devised system in hopes of creating a user-friendly text-based system. The following is a list explaining some terms used that may not be clear to the first-time user. 
 
-The FlowMaster is used for the handling of FlowOption and FlowObject objects. This file does not have any external dependencies and runs entirely on the built in python library.
-
-## Known/Potential Issues
-### FlowMaster.saveData: saves all variables of instance
-FlowMaster.saveData is currently configured to save all the properties of a given instance of FlowMaster, which can result in unintended variables being restored in the next session and causing unforseen glitches. 
-
-## Trash Files: Old files no longer in use
-- flowMaster.py
-- flowObject.py
-- flowOption.py
-- test.py
-
-## Feature Queue:
-1. Visual interface to edit the flowchart
-2. Website release of the program
-3. Mobile friendly website
-4. Password-protected accounts
-5. Encrypted data
-6. Support for uploading images to nodes.
+| Term               | Definition                                                                                    |
+| ------------------ | --------------------------------------------------------------------------------------------- |
+| Node               | A "rectangle" in a decision tree                                                              |
+| Root node          | The first node in a decision tree                                                             |
+| parent node        | The node that points to the current node                                                      |
+| parent option      | The option in the parent node that points to the current node                                 |
+| Override root node | Shouldn't be needed most of the time. Only used for manually setting the root node if needed. |
