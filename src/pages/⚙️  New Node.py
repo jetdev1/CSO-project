@@ -61,6 +61,7 @@ class CreateNode:
                 self.tree._addnode(
                     Tree.Node(
                         NAME=self.name.strip(),
+                        label=self.label.strip(),
                         PARENT=(self.parent, self.parentOption),
                     )
                 )
