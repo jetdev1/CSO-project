@@ -64,8 +64,8 @@ class EditNode:
                         options=cnode.options
                     ))
                     del self.tree[node]
-        else:
-            st.write('No valid node selected.')
+            else:
+                st.write('No valid node selected.')
 
         st.markdown('<br>', unsafe_allow_html=True)
         st.subheader('Override root node')
