@@ -11,6 +11,8 @@ class EditNode:
         
         if node:
             self.value = st.text_input('Description', self.tree[node].label)
+            self.opts = st.text_area('Options', value='\n'.join(self.tree[node].options))
+            self.newopts = self.opts.split('\n')
 
         st.markdown("""
         <style>
@@ -24,7 +26,14 @@ class EditNode:
         col1, col2 = st.columns(2)
         with col1:
             if st.button('Confirm') and node:
-                self.tree[node].label = self.value
+                self.node = self.tree[node]
+                self.node.label = self.value
+                for s in self.newopts:
+                    if s not in self.node.options:
+                        self.node.options[s] = 'Untitled'
+                for s in [e for e in self.node.options.keys() if e not in self.newopts]:
+                    del self.tree[s]
+
                 Tree.save(self.tree)
                 st.info(f"Edited node '{node}'")
 
@@ -40,7 +49,7 @@ class EditNode:
 
         st.markdown('---')
         st.header('Override root node')
-        n = st.selectbox('New root node', self.tree._tree.keys())
+        n = st.selectbox('New root node', list(self.tree._tree.keys()))
 
         if n and st.button('Override'):
             self.tree._setroot(self.tree[n])
