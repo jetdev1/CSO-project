@@ -47,21 +47,25 @@ class EditNode:
         st.markdown('---')
         st.markdown('<h1 style="color: red;">Danger Zone</h1>', unsafe_allow_html=True)
         st.subheader('Override parent node - select node in above section')
-        parent = self.tree[node].PARENT
-        if len(parent) != 0:
-            self.newparent = st.selectbox('Parent Node', self.tree.keys(),
-                                          index=self.tree.keys().index(self.tree[node].PARENT[0]))
-            self.newparentopt = st.selectbox('Parent Option', list(self.tree[self.newparent].options.keys()),
-                                             index=list(self.tree[self.newparent].options.keys()).index(self.tree[node].PARENT[1]))
-            cnode = self.tree[node]
-            if st.button('Override parent node'):
-                self.tree._addnode(Tree.Node(
-                    NAME=cnode.NAME,
-                    PARENT=(self.newparent, self.newparentopt),
-                    label=cnode.label,
-                    options=cnode.options
-                ))
-                del self.tree[node]
+        if node:
+            parent = self.tree[node].PARENT
+            if len(parent) != 0:
+                self.newparent = st.selectbox('Parent Node', self.tree.keys(),
+                                              index=self.tree.keys().index(self.tree[node].PARENT[0]))
+                if self.newparent:
+                    self.newparentopt = st.selectbox('Parent Option', list(self.tree[self.newparent].options.keys()),
+                                                     index=list(self.tree[self.newparent].options.keys()).index(self.tree[node].PARENT[1]))
+                cnode = self.tree[node]
+                if st.button('Override parent node') and self.newparent and self.newparentopt:
+                    self.tree._addnode(Tree.Node(
+                        NAME=cnode.NAME,
+                        PARENT=(self.newparent, self.newparentopt),
+                        label=cnode.label,
+                        options=cnode.options
+                    ))
+                    del self.tree[node]
+        else:
+            st.write('No valid node selected.')
 
         st.markdown('<br>', unsafe_allow_html=True)
         st.subheader('Override root node')
