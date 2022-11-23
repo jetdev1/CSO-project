@@ -27,6 +27,7 @@ def section(name: str, t: Tree.Tree):
                         border-radius:10px;'>\
                         <b>{name}</b> <br> {node.label}</p>",
                         unsafe_allow_html=True)
+        st.write(node.label)
 
 
 
