@@ -24,9 +24,11 @@ class Node:
     label: str = ''
     opts: list[str] = field(default_factory=list)
     fields: Dict[str, Any] = field(default_factory=dict)
+    options: Dict[str, str] = field(default_factory=dict)
 
     def __post_init__(self):
-        self.options = {k: 'Untitled' for k in self.opts}
+        if self.options == {}:
+            self.options = {k: 'Untitled' for k in self.opts}
 
     def _setchild(self, option: str, child: str):
         if option in self.options:
