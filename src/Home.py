@@ -15,7 +15,7 @@ def section(name: str, t: Tree.Tree):
         if selection:
             section(t[node.options[selection]].NAME, t)
     else:
-        if validators.url(node.label):
+        if validators.url(value=node.label):
             st.markdown(f"<p style='font:sans-serif; background-color:darkslategray;\
                         font-size:35px; border: 10px solid darkslategray;\
                         border-radius:10px;'>\

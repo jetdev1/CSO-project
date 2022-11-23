@@ -11,7 +11,7 @@ class EditNode:
         if node:
             self.value = st.text_input('Description', self.tree[node].label)
             self.opts = st.text_area('Options', value='\n'.join(self.tree[node].options))
-            self.newopts = self.opts.split('\n')
+            self.newopts = map(str.strip, self.opts.split('\n'))
 
         st.markdown("""
         <style>
@@ -28,7 +28,7 @@ class EditNode:
                 self.node = self.tree[node]
                 self.node.label = self.value
                 for s in self.newopts:
-                    if s not in self.node.options:
+                    if s not in self.node.options and s != '':
                         self.node.options[s] = 'Untitled'
                 for s in [e for e in self.node.options.keys() if e not in self.newopts]:
                     del self.tree[s]
